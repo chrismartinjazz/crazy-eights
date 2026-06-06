@@ -2,6 +2,7 @@
 #define DECK_H
 
 #include "card.h"
+#include "card_values.h"
 #include <vector>
 
 class Deck
@@ -18,18 +19,17 @@ class Deck
             for (auto& suit : suits)
                 m_cards.emplace_back(rank, suit);
 
-        shuffle();
         m_original = m_cards;
+        shuffle();
     }
 
+    int size() const;
     std::vector<Card> deal(int count);
     Card draw_one();
+    void shuffle_in(Card card);
     void reset();
-    int size();
-    void shuffle_in(Card& card);
 
   private:
-    void create_cards(std::vector<Rank>& ranks, std::vector<Suit>& suits);
     void shuffle();
 };
 
