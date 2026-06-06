@@ -86,3 +86,51 @@ For 2 players
     - Calculate and display the round scores
   - Congratulate the winner
   - Ask if play again
+
+  ## Refactoring Player class
+
+  Currently this class manages its own score:
+    add_to_score, reset_score
+  Manages its own hand, which is a vector:
+    add_to_hand, reset_hand, cards_remaining, has_valid_card_in_hand
+  Chooses which card to play:
+    play_card_or_draw, valid
+  Reports the points in its hand:
+    points_in_hand
+  Handles input from the player
+    ask_press_enter
+    ask_card_index_or_draw
+  
+  Candidates for refactoring:
+  - Extract a Hand object
+    - add_to_hand, reset_hand, cards_remaining, has_valid_card_in_hand, points_in_hand
+  - Extract an 'input' helper class (there is stuff for this in main too)
+    - ask_press_enter
+    - ask_card_index_or_draw
+  
+  In main we also have:
+  - display_hand (this should be moved to a hand object)
+  - game_over (stays there) (HandManager)
+  - ask_keep_playing (should probably move to a user interaction namespace) (AskManager)
+  - ask_press_enter (duplication)
+
+  ## Refactoring Main
+
+  Plausible methods to extract:
+  - play_round (loop until a player has higher than max_score) (Game)
+    - deal (DealManager)
+      - deal_hands_to_players
+      - draw_top_card
+    - play_hand (loop until a player has no cards or draw pile is empty) (HandManager)
+      - update_display
+      - handle_play_card_or_draw
+      - rotate_players
+    - calculate_scores (ScoreManager)
+      - determine_hand_winners
+      - determine_total_points
+      - allocate_points_to_winners
+      - display_scores
+    - reset_hand (HandManager)
+  - determine_round_winners (ScoreManager)
+  - display_final_scores (DisplayManager)
+  - reset (Game)

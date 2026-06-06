@@ -4,13 +4,15 @@
 #include "card.h"
 #include "card_values.h"
 #include "deck.h"
-#include "player.h"
+#include "rules.h"
 #include <vector>
+
+class Player;
 
 struct State
 {
+    const Rules rules {};
     card_values::Suit current_suit {};
-    std::vector<Player> players {};
     Deck deck { card_values::ranks, card_values::suits };
     std::vector<Card> discards {};
 };

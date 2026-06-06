@@ -3,6 +3,7 @@
 #include "config.h"
 #include "deck.h"
 #include "player.h"
+#include "rules.h"
 #include "state.h"
 #include <algorithm>  // for std::all_of
 #include <functional> // for std::reference_wrapper
@@ -10,28 +11,20 @@
 #include <optional> // for std::optional
 #include <vector>
 
-void display_hand(Player& player)
-{
-    std::cout << player.name() << ": [ ";
-    for (auto& card : player.hand())
-        std::cout << card << " ] ";
-    std::cout << '\n';
-}
-
-bool game_over(State& state)
+bool game_over(State& state, std::vector<Player>& players)
 {
     // The game is over when any player has played all their cards, or,
     // when the draw pile is exhausted and no player can play any of their
     // cards.
 
-    for (auto& player : state.players)
+    for (auto& player : players)
         if (player.cards_remaining() == 0)
         {
             return true;
         }
     if (state.deck.size() == 0)
     {
-        for (auto& player : state.players)
+        for (auto& player : players)
             if (player.has_valid_card_in_hand(state))
             {
                 return false;
@@ -80,25 +73,28 @@ int main()
 {
     // Initialize the game
     State state {
+        {},                                         // rules
         card_values::Suit::Club,                    // current_suit
-        { { "P1" }, { "P2" } },                     // players
         { card_values::ranks, card_values::suits }, // deck
-    }; // discard_pile is initialized empty;
+        {}                                          // discard_pile
+    };
+    std::vector<Player> players { { "P1" }, { "P2" } };
 
+    // game_loop
     bool keep_playing { true };
     while (keep_playing)
     {
-        // Main game loop
+        // play_round
         // While no player has scored 100 or more
         while (std::all_of(
-            state.players.begin(),
-            state.players.end(),
+            players.begin(),
+            players.end(),
             [](Player& player)
             { return player.score() < config::winning_score; }
         ))
         {
-            // Deal cards to all players and start the discard pile
-            for (Player& player : state.players)
+            // deal cards to all players and start the discard pile
+            for (Player& player : players)
             {
                 std::vector<Card> hand { state.deck.deal(config::hand_size) };
                 player.add_to_hand(hand);
@@ -125,28 +121,28 @@ int main()
             state.discards.emplace_back(drawn_card);
 
             // Turn game loop
-            while (!game_over(state))
+            while (!game_over(state, players))
             {
                 std::cout << "\nTop card: " << state.discards.back() << " ("
                           << card_values::suit_glyph(state.current_suit)
                           << ")\n";
-                display_hand(state.players[0]);
+                std::cout << players[0].name() << ": " << players[0].hand()
+                          << '\n';
+
                 std::optional<Card> discarded_card {
-                    state.players[0].play_card_or_draw(state)
+                    players[0].play_card_or_draw(state)
                 };
                 if (discarded_card)
                 {
                     if (discarded_card->is_wild())
-                        state.current_suit = state.players[0].ask_choose_suit();
+                        state.current_suit = players[0].ask_choose_suit();
                     else
                         state.current_suit = discarded_card->suit();
 
                     state.discards.emplace_back(*discarded_card);
                 }
                 std::rotate(
-                    state.players.begin(),
-                    state.players.begin() + 1,
-                    state.players.end()
+                    players.begin(), players.begin() + 1, players.end()
                 );
             } // End turn game loop
 
@@ -154,22 +150,22 @@ int main()
             std::vector<std::reference_wrapper<Player>> winners {};
             int total_score { 0 };
 
-            for (auto& player : state.players)
+            for (auto& player : players)
                 if (player.cards_remaining() == 0)
                     winners.emplace_back(std::ref(player));
 
             if (winners.empty())
             {
                 int min_score { 0 };
-                for (auto& player : state.players)
+                for (auto& player : players)
                     min_score = std::min(min_score, player.points_in_hand());
 
-                for (auto& player : state.players)
+                for (auto& player : players)
                     if (player.points_in_hand() == min_score)
                         winners.emplace_back(std::ref(player));
             }
 
-            for (auto& player : state.players)
+            for (auto& player : players)
             {
                 bool is_winner { std::any_of(
                     winners.begin(),
@@ -191,14 +187,14 @@ int main()
             // Display the scores
             std::cout << "-- Current scores (" << config::winning_score
                       << " to win) --\n";
-            for (auto& player : state.players)
+            for (auto& player : players)
                 std::cout << player.name() << ": " << player.score() << '\n';
             ask_press_enter(
                 "Dealing...\nPress enter to play the next hand...\n"
             );
 
             // Reset for next round
-            for (auto& player : state.players)
+            for (auto& player : players)
                 player.reset_hand();
             state.discards.clear();
             state.deck.reset();
@@ -206,11 +202,11 @@ int main()
 
         // Identify the winner/s
         int highest_score { 0 };
-        for (auto& player : state.players)
+        for (auto& player : players)
             highest_score = std::max(highest_score, player.score());
 
         std::vector<std::reference_wrapper<Player>> winners {};
-        for (auto& player : state.players)
+        for (auto& player : players)
             if (player.score() == highest_score)
                 winners.emplace_back(std::ref(player));
 
@@ -226,7 +222,7 @@ int main()
         }
 
         std::cout << "Final scores: ";
-        for (auto& player : state.players)
+        for (auto& player : players)
         {
             std::cout << player.name() << ": " << player.score() << '\n';
         }
@@ -236,7 +232,7 @@ int main()
         if (keep_playing)
         {
             // Reset for next round
-            for (auto& player : state.players)
+            for (auto& player : players)
             {
                 player.reset_hand();
                 player.reset_score();

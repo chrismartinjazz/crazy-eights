@@ -3,6 +3,7 @@
 
 #include "card.h"
 #include "card_values.h"
+#include "hand.h"
 #include <optional> // for std::optional
 #include <string>
 #include <string_view>
@@ -14,14 +15,14 @@ class Player
 {
   private:
     std::string_view m_name {};
-    std::vector<Card> m_hand {};
+    Hand m_hand {};
     int m_score {};
 
   public:
     Player(std::string_view name);
-    const std::vector<Card>& hand() const;
     std::string_view name() const;
     int score() const;
+    Hand hand() const;
 
     void add_to_score(int points);
     void reset_score();

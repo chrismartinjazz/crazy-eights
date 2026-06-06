@@ -2,6 +2,7 @@
 #include "card.h"
 #include "card_values.h"
 #include "deck.h"
+#include "hand.h"
 #include "state.h"
 #include <algorithm> // for std::find
 #include <cassert>
@@ -15,14 +16,8 @@
 
 Player::Player(std::string_view name)
     : m_name { name }
-    , m_hand { std::vector<Card> {} }
     , m_score { 0 }
 {
-}
-
-const std::vector<Card>& Player::hand() const
-{
-    return m_hand;
 }
 
 std::string_view Player::name() const
@@ -33,6 +28,11 @@ std::string_view Player::name() const
 int Player::score() const
 {
     return m_score;
+}
+
+Hand Player::hand() const
+{
+    return m_hand;
 }
 
 void Player::add_to_score(int points)
@@ -47,65 +47,51 @@ void Player::reset_score()
 
 void Player::add_to_hand(std::vector<Card>& cards)
 {
-    m_hand.reserve(m_hand.size() + cards.size());
-    std::move(cards.begin(), cards.end(), std::back_inserter(m_hand));
-    cards.clear();
+    m_hand.add(cards);
 }
 
 void Player::reset_hand()
 {
-    m_hand.clear();
+    m_hand.reset();
 }
 
 int Player::cards_remaining() const
 {
-    return static_cast<int>(m_hand.size());
+    return m_hand.cards_remaining();
 }
 
 bool Player::has_valid_card_in_hand(State& state)
 {
-    for (auto& card : m_hand)
-        if (valid(state, card))
-            return true;
-
-    return false;
+    return !m_hand.find_playable_indices(state).empty();
 }
 
 std::optional<Card> Player::play_card_or_draw(State& state)
 {
     assert(
-        m_hand.size() > 0 && "Player::play_card(): A player with no cards "
-                             "was asked to play a card."
+        m_hand.cards_remaining() > 0 &&
+        "Player::play_card(): A player with no cards "
+        "was asked to play a card."
     );
 
-    std::vector<int> valid_indices {};
-    for (std::size_t i { 0 }; i < m_hand.size(); ++i)
-    {
-        if (valid(state, m_hand[i]))
-            valid_indices.emplace_back(i);
-    }
+    std::vector<int> playable_indices { m_hand.find_playable_indices(state) };
 
     // If the player has a valid card in hand, they may play a card or
     // draw. They may only draw if the deck has cards available.
-    if (valid_indices.size() > 0)
+    if (playable_indices.size() > 0)
     {
         bool draw_is_possible { state.deck.size() > 0 };
         std::optional<int> choice {
-            ask_card_index_or_draw(valid_indices, draw_is_possible)
+            ask_card_index_or_draw(playable_indices, draw_is_possible)
         };
         if (choice)
         {
-            Card chosen_card {
-                std::move(m_hand[static_cast<std::size_t>(*choice)])
-            };
-            m_hand.erase(m_hand.begin() + static_cast<std::size_t>(*choice));
-            return chosen_card;
+            return m_hand.play(static_cast<std::size_t>(*choice));
         }
         else
         {
-            Card drawn_card { state.deck.draw_one() };
-            std::cout << "You drew " << drawn_card << '\n';
-            m_hand.emplace_back(drawn_card);
+            std::vector<Card> drawn_card { state.deck.draw_one() };
+            std::cout << "You drew " << drawn_card[0] << '\n';
+            m_hand.add(drawn_card);
 
             return std::nullopt;
         }
@@ -117,15 +103,17 @@ std::optional<Card> Player::play_card_or_draw(State& state)
     while (state.deck.size() > 0)
     {
         ask_press_enter("Press Enter to draw >> ");
-        Card drawn_card { state.deck.draw_one() };
-        std::cout << "You drew " << drawn_card << '\n';
+        std::vector<Card> drawn_card { state.deck.draw_one() };
+        std::cout << "You drew " << drawn_card[0] << '\n';
 
-        if (valid(state, drawn_card))
+        if (state.rules.is_playable(
+                drawn_card[0], state.discards.back(), state.current_suit
+            ))
         {
             ask_press_enter("Press Enter to play the card >> ");
-            return drawn_card;
+            return drawn_card[0];
         }
-        m_hand.emplace_back(drawn_card);
+        m_hand.add(drawn_card);
     }
     // The drawpile is empty - pass the turn.
     ask_press_enter("The draw pile is empty - press enter to pass >> ");
@@ -164,10 +152,7 @@ card_values::Suit Player::ask_choose_suit()
 
 int Player::points_in_hand() const
 {
-    int points {};
-    for (auto card : m_hand)
-        points += card.points();
-    return points;
+    return m_hand.points();
 }
 
 bool Player::valid(State& state, Card& card)
@@ -191,7 +176,7 @@ std::optional<int> Player::ask_card_index_or_draw(
 {
     while (true)
     {
-        std::cout << "Choose a card (1 - " << m_hand.size() << ')';
+        std::cout << "Choose a card (1 - " << m_hand.cards_remaining() << ')';
         if (draw_is_possible)
             std::cout << " or 'd' to draw";
         std::cout << " >> ";
