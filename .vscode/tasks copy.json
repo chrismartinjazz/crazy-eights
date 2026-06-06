@@ -1,0 +1,39 @@
+{
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "C/C++: gcc build active file",
+      "command": "/usr/bin/g++",
+      "args": [
+        "-pedantic-errors",
+        "-Wall",
+        "-Weffc++",
+        "-Wextra",
+        "-Wconversion",
+        "-Wsign-conversion",
+        "-Werror",
+        "-Wshadow",
+        "-fdiagnostics-color=always",
+        "-g",
+        "-std=c++23",
+        "-I${workspaceFolder}/doctest/",
+        "${fileDirname}/**.cpp",
+        "-o",
+        "${fileDirname}/${fileBasenameNoExtension}",
+        "-std=c++23"
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Standard compiler task for LearnCpp."
+    }
+  ],
+  "version": "2.0.0"
+}

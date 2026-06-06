@@ -1,0 +1,67 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "C/C++: gcc build active file, exclude *_test.cpp",
+      "command": "g++ -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Wsign-conversion -Werror -Wshadow -fdiagnostics-color=always -g -std=c++23 -I${workspaceFolder}/doctest/ $(find ${fileDirname} -name '*.cpp' ! -name '*_test.cpp') -o ${fileDirname}/../bin/main",
+      "args": [],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Standard compiler task for LearnCpp (gcc)."
+    },
+    {
+      "type": "shell",
+      "label": "C/C++: gcc test active file, exclude main.cpp",
+      "command": "g++ -pedantic-errors -Wall -Weffc++ -Wextra -Wconversion -Wsign-conversion -Werror -Wshadow -fdiagnostics-color=always -g -std=c++23 -I${workspaceFolder}/doctest/ $(find ${fileDirname} -name '*.cpp' ! -name 'main.cpp') -o ${fileDirname}/../bin/tests && ${fileDirname}/bin/tests",
+      "args": [],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "detail": "Test runner task for LearnCpp (gcc)."
+    },
+    {
+      "type": "shell",
+      "label": "C/C++: clang++ build active file, exclude *_test.cpp",
+      "command": "clang++ -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion -Werror -Wshadow -fcolor-diagnostics -fansi-escape-codes -g -std=c++23 -I${workspaceFolder}/doctest/ $(find ${fileDirname} -name '*.cpp' ! -name '*_test.cpp') -o ${fileDirname}/../bin/main",
+      "args": [],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build",
+      "detail": "Clang compiler task for LearnCpp (clang++)."
+    },
+    {
+      "type": "shell",
+      "label": "C/C++: clang++ test active file, exclude main.cpp",
+      "command": "clang++ -pedantic-errors -Wall -Wextra -Wconversion -Wsign-conversion -Werror -Wshadow -fcolor-diagnostics -fansi-escape-codes -g -std=c++23 -I${workspaceFolder}/doctest/ $(find ${fileDirname} -name '*.cpp' ! -name 'main.cpp') -o ${fileDirname}/bin/tests && ${fileDirname}/../bin/tests",
+      "args": [],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build",
+      "detail": "Clang compiler task for LearnCpp (clang++)."
+    }
+  ]
+}

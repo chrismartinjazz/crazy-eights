@@ -1,0 +1,28 @@
+BasedOnStyle: LLVM
+
+ReferenceAlignment: Left
+PointerAlignment: Left
+
+BreakBeforeBraces: Allman
+Cpp11BracedListStyle: false
+SpaceBeforeCpp11BracedList: true
+
+IndentWidth: 4
+
+AllowShortFunctionsOnASingleLine: Inline
+
+BreakTemplateDeclarations: Yes
+
+BreakConstructorInitializers: BeforeComma
+PackConstructorInitializers: Never
+ConstructorInitializerIndentWidth: 4
+
+AllowShortCaseLabelsOnASingleLine: true
+
+NamespaceIndentation: All
+
+# Place parameters for long function calls on their own line if overflow
+BinPackParameters: false
+BinPackArguments: false
+AlignAfterOpenBracket: BlockIndent
+AllowAllParametersOfDeclarationOnNextLine: true
