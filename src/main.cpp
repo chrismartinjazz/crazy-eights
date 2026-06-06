@@ -108,9 +108,11 @@ int main()
             bool keep_drawing { true };
             while (keep_drawing)
             {
-                if (drawn_card.rank() == card_values::Rank::Eight)
+                if (drawn_card.is_wild())
                 {
-                    std::cout << "It's an 8! Shuffling it in...\n";
+                    std::cout << "We drew "
+                              << card_values::rank_letter(drawn_card.rank())
+                              << "! Shuffling it in...\n";
                     state.deck.shuffle_in(drawn_card);
                     drawn_card = state.deck.draw_one();
                 }
@@ -134,7 +136,7 @@ int main()
                 };
                 if (discarded_card)
                 {
-                    if (discarded_card->rank() == card_values::Rank::Eight)
+                    if (discarded_card->is_wild())
                         state.current_suit = state.players[0].ask_choose_suit();
                     else
                         state.current_suit = discarded_card->suit();

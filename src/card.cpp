@@ -3,9 +3,14 @@
 #include <iostream>
 using namespace card_values;
 
+struct CardEffect;
+
 Card::Card(Rank rank, Suit suit)
     : m_rank(rank)
     , m_suit(suit)
+    , m_effect {
+        rank == Rank::Eight // wild
+    }
 {
 }
 
@@ -19,9 +24,14 @@ Suit Card::suit() const
     return m_suit;
 }
 
-int Card::points()
+int Card::points() const
 {
     return rank_points(m_rank);
+}
+
+bool Card::is_wild() const
+{
+    return m_effect.wild;
 }
 
 std::ostream& operator<<(std::ostream& out, const Card& card)

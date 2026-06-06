@@ -174,8 +174,7 @@ bool Player::valid(State& state, Card& card)
 {
     return (
         card.rank() == state.discards.back().rank() ||
-        card.suit() == state.current_suit ||
-        card.rank() == card_values::Rank::Eight
+        card.suit() == state.current_suit || card.is_wild()
     );
 }
 
