@@ -12,6 +12,7 @@ class Hand
 
   public:
     void add(std::vector<Card> cards);
+    void add(Card card);
     void reset();
     int points() const;
     int cards_remaining() const;

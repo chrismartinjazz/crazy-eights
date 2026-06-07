@@ -2,7 +2,7 @@
 #include "card_values.h"
 #include "config.h"
 #include "deck.h"
-#include "player.h"
+#include "player_human.h"
 #include "rules.h"
 #include "state.h"
 #include <algorithm>  // for std::all_of
@@ -11,7 +11,7 @@
 #include <optional> // for std::optional
 #include <vector>
 
-bool game_over(State& state, std::vector<Player>& players)
+bool game_over(State& state, std::vector<PlayerHuman>& players)
 {
     // The game is over when any player has played all their cards, or,
     // when the draw pile is exhausted and no player can play any of their
@@ -78,7 +78,7 @@ int main()
         { card_values::ranks, card_values::suits }, // deck
         {}                                          // discard_pile
     };
-    std::vector<Player> players { { "P1" }, { "P2" } };
+    std::vector<PlayerHuman> players { { "P1" }, { "P2" } };
 
     // game_loop
     bool keep_playing { true };
@@ -89,12 +89,12 @@ int main()
         while (std::all_of(
             players.begin(),
             players.end(),
-            [](Player& player)
+            [](PlayerHuman& player)
             { return player.score() < config::winning_score; }
         ))
         {
             // deal cards to all players and start the discard pile
-            for (Player& player : players)
+            for (PlayerHuman& player : players)
             {
                 std::vector<Card> hand { state.deck.deal(config::hand_size) };
                 player.add_to_hand(hand);
@@ -126,8 +126,9 @@ int main()
                 std::cout << "\nTop card: " << state.discards.back() << " ("
                           << card_values::suit_glyph(state.current_suit)
                           << ")\n";
-                std::cout << players[0].name() << ": " << players[0].hand()
-                          << '\n';
+                std::cout << players[0].name() << ": ";
+                players[0].display_hand();
+                std::cout << '\n';
 
                 std::optional<Card> discarded_card {
                     players[0].play_card_or_draw(state)
@@ -147,7 +148,7 @@ int main()
             } // End turn game loop
 
             // Calculate and update the scores
-            std::vector<std::reference_wrapper<Player>> winners {};
+            std::vector<std::reference_wrapper<PlayerHuman>> winners {};
             int total_score { 0 };
 
             for (auto& player : players)
@@ -170,7 +171,7 @@ int main()
                 bool is_winner { std::any_of(
                     winners.begin(),
                     winners.end(),
-                    [&](std::reference_wrapper<Player> winner)
+                    [&](std::reference_wrapper<PlayerHuman> winner)
                     { return &winner.get() == &player; }
                 ) };
                 if (!is_winner)
@@ -205,7 +206,7 @@ int main()
         for (auto& player : players)
             highest_score = std::max(highest_score, player.score());
 
-        std::vector<std::reference_wrapper<Player>> winners {};
+        std::vector<std::reference_wrapper<PlayerHuman>> winners {};
         for (auto& player : players)
             if (player.score() == highest_score)
                 winners.emplace_back(std::ref(player));

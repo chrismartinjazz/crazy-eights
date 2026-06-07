@@ -3,13 +3,16 @@
 #include <iostream>
 #include <vector>
 
-Hand::Hand() {}
-
 void Hand::add(std::vector<Card> cards)
 {
     m_cards.reserve(m_cards.size() + cards.size());
     std::move(cards.begin(), cards.end(), std::back_inserter(m_cards));
     cards.clear();
+}
+
+void Hand::add(Card card)
+{
+    m_cards.emplace_back(std::move(card));
 }
 
 void Hand::reset()
