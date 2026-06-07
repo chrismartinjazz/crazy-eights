@@ -6,7 +6,7 @@
 #include <iterator> // for std::make_move_iterator
 #include <vector>
 
-int Deck::size() const
+int Deck::cards_remaining() const
 {
     return static_cast<int>(m_cards.size());
 }
@@ -41,7 +41,7 @@ Card Deck::draw_one()
 
 void Deck::shuffle_in(Card card)
 {
-    int idx { random_mt::get(1, size()) };
+    int idx { random_mt::get(1, cards_remaining()) };
     m_cards.insert(m_cards.begin() + idx, card);
 }
 

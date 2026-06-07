@@ -23,7 +23,7 @@ class Deck
         shuffle();
     }
 
-    int size() const;
+    int cards_remaining() const;
     std::vector<Card> deal(int count);
     Card draw_one();
     void shuffle_in(Card card);

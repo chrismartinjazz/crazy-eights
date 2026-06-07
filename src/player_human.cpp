@@ -66,7 +66,7 @@ std::optional<Card> PlayerHuman::play_or_voluntary_draw(
     State& state, std::vector<int>& playable_indices
 )
 {
-    bool draw_is_possible { state.deck.size() > 0 };
+    bool draw_is_possible { state.deck.cards_remaining() > 0 };
     std::optional<int> choice {
         ask_card_index_or_draw(playable_indices, draw_is_possible)
     };
@@ -86,7 +86,7 @@ std::optional<Card> PlayerHuman::play_or_voluntary_draw(
 std::optional<Card> PlayerHuman::forced_draw(State& state)
 {
     std::cout << "You have no playable cards.\n";
-    while (state.deck.size() > 0)
+    while (state.deck.cards_remaining() > 0)
     {
         ui::ask_press_enter("Press Enter to draw >> ");
         Card drawn_card { draw_one_and_announce(state) };

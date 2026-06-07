@@ -110,27 +110,28 @@ For 2 players
   
   In main we also have:
   - display_hand (this should be moved to a hand object)
-  - game_over (stays there) (HandManager)
+  - game_over (State::Rules)
   - ask_keep_playing (should probably move to a user interaction namespace) (AskManager)
   - ask_press_enter (duplication)
 
   ## Refactoring Main
 
   Plausible methods to extract:
+  - initialize (constructor for Game)
   - play_round (loop until a player has higher than max_score) (Game)
-    - deal (DealManager)
+    - deal (Game::DealManager)
       - deal_hands_to_players
       - draw_top_card
-    - play_hand (loop until a player has no cards or draw pile is empty) (HandManager)
+    - play_hand (loop until a player has no cards or draw pile is empty) (Game::HandManager)
       - update_display
       - handle_play_card_or_draw
       - rotate_players
-    - calculate_scores (ScoreManager)
+    - calculate_scores (Game)
       - determine_hand_winners
       - determine_total_points
       - allocate_points_to_winners
       - display_scores
-    - reset_hand (HandManager)
-  - determine_round_winners (ScoreManager)
-  - display_final_scores (DisplayManager)
-  - reset (Game)
+    - reset_hand (Game::HandManager)
+  - determine_round_winners 
+  - display_final_scores 
+  - reset 
