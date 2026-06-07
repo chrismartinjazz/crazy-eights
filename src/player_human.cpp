@@ -63,7 +63,7 @@ card_values::Suit PlayerHuman::ask_choose_suit()
 // private:
 
 std::optional<Card> PlayerHuman::play_or_voluntary_draw(
-    State& state, std::vector<int>& playable_indices
+    State& state, const std::vector<int>& playable_indices
 )
 {
     bool draw_is_possible { state.deck.cards_remaining() > 0 };
@@ -106,7 +106,7 @@ std::optional<Card> PlayerHuman::forced_draw(State& state)
 }
 
 std::optional<int> PlayerHuman::ask_card_index_or_draw(
-    std::vector<int>& valid_indices, bool draw_is_possible
+    const std::vector<int>& valid_indices, const bool draw_is_possible
 )
 {
     std::string prompt { build_prompt(draw_is_possible) };

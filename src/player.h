@@ -26,7 +26,7 @@ class Player
 
     std::string_view name() const;
     int score() const;
-    void add_to_score(int points);
+    void add_to_score(const int points);
     void reset_score();
 
     void display_hand() const;
@@ -34,7 +34,7 @@ class Player
     void add_to_hand(std::vector<Card>& cards);
     int cards_remaining() const;
     int points_in_hand() const;
-    bool has_valid_card_in_hand(State& state);
+    bool has_valid_card_in_hand(const State& state);
 };
 
 #endif

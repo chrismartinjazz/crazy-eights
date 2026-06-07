@@ -25,7 +25,7 @@ int Player::score() const
     return m_score;
 }
 
-void Player::add_to_score(int points)
+void Player::add_to_score(const int points)
 {
     m_score += points;
 }
@@ -55,7 +55,7 @@ int Player::points_in_hand() const
     return m_hand.points();
 }
 
-bool Player::has_valid_card_in_hand(State& state)
+bool Player::has_valid_card_in_hand(const State& state)
 {
     return !m_hand.find_playable_indices(state).empty();
 }
