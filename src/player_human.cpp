@@ -72,7 +72,7 @@ std::optional<Card> PlayerHuman::play_or_voluntary_draw(
     };
     if (choice)
     {
-        return m_hand.play(static_cast<std::size_t>(*choice));
+        return m_hand.play(*choice);
     }
     else
     {

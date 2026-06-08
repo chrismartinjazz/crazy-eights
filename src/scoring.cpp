@@ -1,6 +1,6 @@
 #include "scoring.h"
 #include "config.h"
-#include "player_human.h"
+#include "player.h"
 #include <iostream>
 #include <vector>
 

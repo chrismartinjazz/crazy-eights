@@ -10,6 +10,11 @@ void Hand::add(std::vector<Card> cards)
     cards.clear();
 }
 
+const Card& Hand::card(int index) const
+{
+    return m_cards[static_cast<std::size_t>(index)];
+}
+
 void Hand::add(Card card)
 {
     m_cards.emplace_back(std::move(card));
@@ -46,9 +51,9 @@ std::vector<int> Hand::find_playable_indices(const State& state) const
     return playable_indices;
 }
 
-Card Hand::play(std::size_t index)
+Card Hand::play(int index)
 {
-    Card chosen_card { std::move(m_cards[index]) };
+    Card chosen_card { std::move(m_cards[static_cast<std::size_t>(index)]) };
     m_cards.erase(
         m_cards.begin() + static_cast<std::vector<Card>::difference_type>(index)
     );

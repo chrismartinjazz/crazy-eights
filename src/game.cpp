@@ -2,6 +2,7 @@
 #include "card_values.h"
 #include "config.h"
 #include "player.h"
+#include "player_computer.cpp"
 #include "player_human.h"
 #include "scoring.h"
 #include "state.h"
@@ -17,7 +18,7 @@ Game::Game()
                 .discards = {} }
 {
     m_players.emplace_back(std::make_unique<PlayerHuman>("P1"));
-    m_players.emplace_back(std::make_unique<PlayerHuman>("P2"));
+    m_players.emplace_back(std::make_unique<PlayerComputer>("P2"));
 }
 
 void Game::game_loop()

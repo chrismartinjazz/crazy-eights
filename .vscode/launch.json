@@ -2,10 +2,10 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "C/C++: g++ build and debug active file",
+      "name": "C/C++: gcc build active file, exclude *_test.cpp",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${fileDirname}/${fileBasenameNoExtension}",
+      "program": "${fileDirname}/../bin/main",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${fileDirname}",
