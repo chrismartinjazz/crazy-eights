@@ -34,7 +34,7 @@ std::optional<Card> PlayerHuman::play_card_or_draw(State& state)
     return forced_draw(state);
 }
 
-card_values::Suit PlayerHuman::ask_choose_suit()
+card_values::Suit PlayerHuman::ask_choose_suit() const
 {
     while (true)
     {
@@ -107,7 +107,7 @@ std::optional<Card> PlayerHuman::forced_draw(State& state)
 
 std::optional<int> PlayerHuman::ask_card_index_or_draw(
     const std::vector<int>& valid_indices, const bool draw_is_possible
-)
+) const
 {
     std::string prompt { build_prompt(draw_is_possible) };
     while (true)
@@ -123,7 +123,7 @@ std::optional<int> PlayerHuman::ask_card_index_or_draw(
     }
 }
 
-std::string PlayerHuman::build_prompt(bool draw_is_possible)
+std::string PlayerHuman::build_prompt(bool draw_is_possible) const
 {
     std::string prompt {};
     prompt += "Choose a card (1 - ";
@@ -146,7 +146,7 @@ std::optional<int> PlayerHuman::parse_card_index(
     std::string_view input,
     const std::vector<int>& valid_indices,
     bool draw_is_possible
-)
+) const
 {
     std::stringstream ss { std::string(input) };
     int choice {};

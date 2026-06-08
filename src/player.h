@@ -21,7 +21,7 @@ class Player
   public:
     Player(std::string_view name);
     virtual std::optional<Card> play_card_or_draw(State& state) = 0;
-    virtual card_values::Suit ask_choose_suit() = 0;
+    virtual card_values::Suit ask_choose_suit() const = 0;
     virtual ~Player() = default;
 
     std::string_view name() const;
@@ -34,7 +34,7 @@ class Player
     void add_to_hand(std::vector<Card>& cards);
     int cards_remaining() const;
     int points_in_hand() const;
-    bool has_valid_card_in_hand(const State& state);
+    bool has_valid_card_in_hand(const State& state) const;
 };
 
 #endif

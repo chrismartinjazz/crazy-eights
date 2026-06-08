@@ -55,7 +55,7 @@ int Player::points_in_hand() const
     return m_hand.points();
 }
 
-bool Player::has_valid_card_in_hand(const State& state)
+bool Player::has_valid_card_in_hand(const State& state) const
 {
     return !m_hand.find_playable_indices(state).empty();
 }

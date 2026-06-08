@@ -1,11 +1,13 @@
 #include "game.h"
 #include "card_values.h"
 #include "config.h"
+#include "player.h"
 #include "player_human.h"
 #include "scoring.h"
 #include "state.h"
 #include "ui_helpers.h"
 #include <algorithm> // for std::rotate, std::any_of
+#include <memory>
 #include <vector>
 
 Game::Game()
@@ -13,8 +15,9 @@ Game::Game()
                 .current_suit = {},
                 .deck = { card_values::ranks, card_values::suits },
                 .discards = {} }
-    , m_players { { "P1" }, { "P2" } }
 {
+    m_players.emplace_back(std::make_unique<PlayerHuman>("P1"));
+    m_players.emplace_back(std::make_unique<PlayerHuman>("P2"));
 }
 
 void Game::game_loop()
@@ -46,22 +49,22 @@ void Game::game_loop()
 
 // private
 
-bool Game::a_player_has_won()
+bool Game::a_player_has_won() const
 {
     return std::any_of(
         m_players.begin(),
         m_players.end(),
-        [](const PlayerHuman& player)
-        { return player.score() >= config::winning_score; }
+        [](const std::unique_ptr<Player>& player)
+        { return player->score() >= config::winning_score; }
     );
 }
 
 void Game::deal()
 {
-    for (PlayerHuman& player : m_players)
+    for (std::unique_ptr<Player>& player : m_players)
     {
         std::vector<Card> hand { m_state.deck.deal(config::hand_size) };
-        player.add_to_hand(hand);
+        player->add_to_hand(hand);
     }
 
     while (true)
@@ -84,7 +87,7 @@ void Game::play_round()
 {
     while (!round_is_over())
     {
-        Player& current_player { m_players[0] };
+        Player& current_player { *m_players[0] };
         display_turn_info(current_player);
 
         std::optional<Card> discarded_card {
@@ -112,18 +115,18 @@ void Game::update_scores()
 
 void Game::reset_round()
 {
-    for (auto& player : m_players)
-        player.reset_hand();
+    for (std::unique_ptr<Player>& player : m_players)
+        player->reset_hand();
     m_state.discards.clear();
     m_state.deck.reset();
 }
 
 void Game::reset_game()
 {
-    for (auto& player : m_players)
+    for (std::unique_ptr<Player>& player : m_players)
     {
-        player.reset_hand();
-        player.reset_score();
+        player->reset_hand();
+        player->reset_score();
     }
     m_state.discards.clear();
     m_state.deck.reset();
@@ -132,13 +135,13 @@ void Game::reset_game()
 // The game is over when any player has played all their cards, or,
 // when the draw pile is exhausted and no player can play any of their
 // cards.
-bool Game::round_is_over()
+bool Game::round_is_over() const
 {
     if (std::any_of(
             m_players.begin(),
             m_players.end(),
-            [](const PlayerHuman& player)
-            { return player.cards_remaining() == 0; }
+            [](const std::unique_ptr<Player>& player)
+            { return player->cards_remaining() == 0; }
         ))
         return true;
 
@@ -146,19 +149,19 @@ bool Game::round_is_over()
         return (std::none_of(
             m_players.begin(),
             m_players.end(),
-            [&](PlayerHuman& player)
-            { return player.has_valid_card_in_hand(m_state); }
+            [&](const std::unique_ptr<Player>& player)
+            { return player->has_valid_card_in_hand(m_state); }
         ));
 
     return false;
 }
 
-void Game::display_turn_info(const Player& current_player) const
+void Game::display_turn_info(const Player& player) const
 {
     std::cout << "\n\nTop card: " << m_state.discards.back() << " ("
               << card_values::suit_glyph(m_state.current_suit) << ")\n\n";
-    std::cout << current_player.name() << ": ";
-    current_player.display_hand();
+    std::cout << player.name() << ": ";
+    player.display_hand();
     std::cout << "\n\n";
 }
 
@@ -170,7 +173,7 @@ void Game::handle_discarded_card(const Card& card, Player& player)
         m_state.current_suit = card.suit();
 }
 
-bool Game::ask_keep_playing()
+bool Game::ask_keep_playing() const
 {
     while (true)
     {
