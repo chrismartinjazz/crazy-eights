@@ -16,6 +16,7 @@ class PlayerHuman : public Player
     PlayerHuman(std::string_view name);
     std::optional<Card> play_card_or_draw(State& state) override;
     card_values::Suit ask_choose_suit() const override;
+    void sort_hand() override;
 
   private:
     std::optional<Card> play_or_voluntary_draw(

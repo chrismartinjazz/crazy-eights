@@ -29,6 +29,15 @@ namespace ui
         std::cout << prompt;
         std::cin.ignore();
     }
+
+    inline void clear_terminal()
+    {
+#if defined(_WIN32) || defined(_WIN64)
+        std::system("cls");
+#else
+        std::cout << "\033[2J\033[1;1H";
+#endif
+    }
 } // namespace ui
 
 #endif

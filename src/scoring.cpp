@@ -36,14 +36,15 @@ int scoring::calculate_round_score(
     const std::vector<std::size_t>& winner_indices
 )
 {
-    int round_score { 0 };
-    // Total all points in all players hands first...
-    for (auto& player : players)
-        round_score += player->points_in_hand();
+    // Winners by definition all have the same score in their hands, so just
+    // retrieve the first winners score.
+    int winning_score { players[winner_indices[0]]->points_in_hand() };
 
-    // Subtract the points of the winners hands as they shouldn't count.
-    for (std::size_t i : winner_indices)
-        round_score -= players[i]->points_in_hand();
+    // Add the difference between the players score and the winning score to the
+    // round score. For the winner/s, this means adding 0 points.
+    int round_score { 0 };
+    for (auto& player : players)
+        round_score += player->points_in_hand() - winning_score;
 
     return round_score;
 }

@@ -60,6 +60,11 @@ card_values::Suit PlayerHuman::ask_choose_suit() const
     }
 }
 
+void PlayerHuman::sort_hand()
+{
+    m_hand.sort_by_suit_and_rank();
+}
+
 // private:
 
 std::optional<Card> PlayerHuman::play_or_voluntary_draw(

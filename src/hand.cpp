@@ -1,5 +1,6 @@
 #include "hand.h"
 #include "card_values.h"
+#include <algorithm>
 #include <iostream>
 #include <vector>
 
@@ -58,6 +59,29 @@ Card Hand::play(int index)
         m_cards.begin() + static_cast<std::vector<Card>::difference_type>(index)
     );
     return chosen_card;
+}
+
+void Hand::sort_by_points()
+{
+    std::sort(
+        m_cards.begin(),
+        m_cards.end(),
+        [](Card& a, Card& b) { return a.points() > b.points(); }
+    );
+}
+
+void Hand::sort_by_suit_and_rank()
+{
+    std::sort(
+        m_cards.begin(),
+        m_cards.end(),
+        [](Card& a, Card& b)
+        {
+            if (a.suit() != b.suit())
+                return a.suit() < b.suit();
+            return a.rank() < b.rank();
+        }
+    );
 }
 
 std::ostream& operator<<(std::ostream& out, const Hand& hand)

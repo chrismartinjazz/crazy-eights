@@ -1,5 +1,6 @@
 #include "card_values.h"
 #include "player.h"
+#include "random_mt.h"
 #include "state.h"
 #include <algorithm>
 #include <cassert>
@@ -27,7 +28,7 @@ class PlayerComputer : public Player
     {
     }
 
-    std::optional<Card> play_card_or_draw(State& state)
+    std::optional<Card> play_card_or_draw(State& state) override
     {
         assert(
             m_hand.cards_remaining() > 0 &&
@@ -43,31 +44,29 @@ class PlayerComputer : public Player
         return forced_draw(state);
     }
 
-    card_values::Suit ask_choose_suit() const
+    card_values::Suit ask_choose_suit() const override
     {
-        std::unordered_map<card_values::Suit, int> suits_count {};
-        for (int i; i < m_hand.cards_remaining(); ++i)
-        {
-            if (m_hand.card(i).is_wild())
-                continue;
-            if (!suits_count.contains(m_hand.card(i).suit()))
-                suits_count[m_hand.card(i).suit()] = 0;
-            else
-                suits_count[m_hand.card(i).suit()] += 1;
-        }
+        std::unordered_map<card_values::Suit, int> suit_counts {
+            count_suits()
+        };
 
-        int most_suits { std::numeric_limits<int>::min() };
-        card_values::Suit choice { card_values::Suit::Club };
-        for (const auto& [suit, count] : suits_count)
-        {
-            if (count > most_suits)
-            {
-                most_suits = count;
-                choice = suit;
-            }
-        }
-        return choice;
+        // Find the suit with the most cards in hand.
+        auto iterator { std::ranges::max_element(
+            suit_counts,
+            [](const auto& a, const auto& b) { return a.second < b.second; }
+        ) };
+
+        if (iterator != suit_counts.end())
+            return iterator->first;
+
+        // Reaching this line indicates the player holds only wild cards in
+        // hand. Choose a random suit.
+        return static_cast<card_values::Suit>(
+            random_mt::get(0, static_cast<int>(card_values::Suit::maxSuit) - 1)
+        );
     }
+
+    void sort_hand() override { m_hand.sort_by_points(); }
 
   private:
     Card select_card(State& state)
@@ -114,7 +113,7 @@ class PlayerComputer : public Player
         std::vector<int> indices {
             m_hand_indices.suits_map[state.current_suit]
         };
-        auto it { std::ranges::min_element(
+        auto iterator { std::ranges::min_element(
             indices,
             [&](const int a, const int b)
             {
@@ -122,8 +121,8 @@ class PlayerComputer : public Player
                        m_hand_indices.ranks_map[m_hand.card(b).rank()].size();
             }
         ) };
-        if (it != indices.end())
-            return m_hand.play(*it);
+        if (iterator != indices.end())
+            return m_hand.play(*iterator);
 
         throw std::runtime_error("Unable to follow suit.");
     }
@@ -131,7 +130,7 @@ class PlayerComputer : public Player
     Card follow_rank(Card& top_card)
     {
         std::vector<int> indices { m_hand_indices.ranks_map[top_card.rank()] };
-        auto it { std::ranges::max_element(
+        auto iterator { std::ranges::max_element(
             indices,
             [&](const int a, const int b)
             {
@@ -139,8 +138,8 @@ class PlayerComputer : public Player
                        m_hand_indices.suits_map[m_hand.card(b).suit()].size();
             }
         ) };
-        if (it != indices.end())
-            return m_hand.play(*it);
+        if (iterator != indices.end())
+            return m_hand.play(*iterator);
 
         throw std::runtime_error("Unable to follow rank.");
     }
@@ -164,10 +163,10 @@ class PlayerComputer : public Player
         return std::nullopt;
     }
 
-    std::unordered_map<card_values::Suit, int> count_suits()
+    std::unordered_map<card_values::Suit, int> count_suits() const
     {
         std::unordered_map<card_values::Suit, int> suits_count {};
-        for (int i; i < m_hand.cards_remaining(); ++i)
+        for (int i { 0 }; i < m_hand.cards_remaining(); ++i)
         {
             if (m_hand.card(i).is_wild())
                 continue;

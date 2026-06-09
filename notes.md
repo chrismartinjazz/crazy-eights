@@ -65,9 +65,9 @@
 - [x] Cards in a Deck
 - [x] Deck can be shuffled
 - [x] HumanPlayer dealt a hand of 7 cards
-- [ ] Cards and the top discard are shown graphically 
+- [x] Cards and the top discard are shown graphically 
 - [x] HumanPlayer can play a card following the rules or draw
-- [ ] Game Loop in place
+- [x] Game Loop in place
 
 ### Game Loop
 
@@ -138,9 +138,11 @@ For 2 players
 
   ## Potential Improvements
 
-- [] Add AI Players
-- [] Fix scoring mistake
+- [x] Add AI Players
+- [x] Add sorting for hands
+- [x] Fix scoring mistake
   - Should score difference between each losers hand and the winning score, not the total score,  when the deck runs out.
+- [] Improve display - clear screen each action, improve game state information
 - [] Add support for different numbers of players
   - 2-7 players
   - One human player, others are AI players with randomised names
@@ -150,8 +152,40 @@ For 2 players
     - hand size
       - 2 players, 7 cards
       - 3-7 players, 5 cards
-- [] Improve display - clear screen each action, improve game state information
 - [] Add special card functions
   - [] Queens skip turn
   - [] Aces reverse direction
   - [] Two is draw two (unless game is over)
+
+  ## Display
+
+`std::cout << "\033[31mThis text is Red\033[0m" << std::endl;`
+
+```
+~~ CRAZY 8S!!! ~~
+** Target: 150 **
+
+*John* ┌──┐─┐─┐                
+0      │%%|%|%|                
+       └──┘─┘─┘                
+Jane   ┌──┐─┐
+22     │%%|%|
+       └──┘─┘
+
+       ┌────┐┐ ┌──┐┐┐
+   *♠* │ 8♣ || │%%|||
+       └────┘┘ └──┘┘┘
+
+Chris
+0
+┌────┐────┐────┐────┐────┐────┐────┐ 
+│ 5♣ | 3♣ | 9♠ | 2♦ | J♠ | J♦ | K♠ |
+|    |    |    |    |    |    |    |
+└────┘────┘────└────┘────┘────┘────┘
+   1    2    3    4    5    6    7
+
+Choose a card or (d) to draw >> 
+```
+
+Only display the *♠* current suit indicator if the top card is wild.
+Display one card back per 6 cards for the deck and discard pile.

@@ -89,6 +89,7 @@ void Game::play_round()
     while (!round_is_over())
     {
         Player& current_player { *m_players[0] };
+        current_player.sort_hand();
         display_turn_info(current_player);
 
         std::optional<Card> discarded_card {
@@ -159,6 +160,11 @@ bool Game::round_is_over() const
 
 void Game::display_turn_info(const Player& player) const
 {
+    ui::clear_terminal();
+    std::cout << "~~ CRAZY 8S!!! ~~";
+    std::cout << "** Target:" << config::winning_score << " **";
+    std::cout << '\n';
+
     std::cout << "\n\nTop card: " << m_state.discards.back() << " ("
               << card_values::suit_glyph(m_state.current_suit) << ")\n\n";
     std::cout << player.name() << ": ";

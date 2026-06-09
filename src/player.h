@@ -22,6 +22,7 @@ class Player
     Player(std::string_view name);
     virtual std::optional<Card> play_card_or_draw(State& state) = 0;
     virtual card_values::Suit ask_choose_suit() const = 0;
+    virtual void sort_hand() = 0;
     virtual ~Player() = default;
 
     std::string_view name() const;
