@@ -141,8 +141,9 @@ For 2 players
 - [x] Add AI Players
 - [x] Add sorting for hands
 - [x] Fix scoring mistake
-  - Should score difference between each losers hand and the winning score, not the total score,  when the deck runs out.
-- [] Improve display - clear screen each action, improve game state information
+  - Should score difference between each losers hand and the winning score, not the total score,  when the deck runs out
+- [x] Improve display - clear screen each action, improve game state information
+- [] Fix bug where seg fault occurs when draw pile is empty
 - [] Add support for different numbers of players
   - 2-7 players
   - One human player, others are AI players with randomised names
@@ -152,6 +153,7 @@ For 2 players
     - hand size
       - 2 players, 7 cards
       - 3-7 players, 5 cards
+- [] Add colored text for hearts and diamonds
 - [] Add special card functions
   - [] Queens skip turn
   - [] Aces reverse direction
@@ -172,9 +174,10 @@ Jane   ┌──┐─┐
 22     │%%|%|
        └──┘─┘
 
-       ┌────┐┐ ┌──┐┐┐
-   *♠* │ 8♣ || │%%|||
-       └────┘┘ └──┘┘┘
+       ┌────┐┐ ┌────┐┐┐
+   *♠* │ 8♣ || │ %  |||
+       │    || │  % ||| 
+       └────┘┘ └────┘┘┘
 
 Chris
 0

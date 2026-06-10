@@ -1,13 +1,28 @@
 #ifndef UI_HELPERS_H
 #define UI_HELPERS_H
 
+#include <chrono>
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <thread>
 
 namespace ui
 {
+    inline void sleep(int number)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(number));
+    }
+
+    inline int count_digits(int number)
+    {
+        if (number == 0)
+            return 1;
+        return static_cast<int>(std::floor(std::log10(std::abs(number))) + 1);
+    }
+
     inline std::string ask_input(std::string_view prompt)
     {
         while (true)

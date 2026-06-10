@@ -1,7 +1,9 @@
 #include "card_values.h"
+#include "config.h"
 #include "player.h"
 #include "random_mt.h"
 #include "state.h"
+#include "ui_helpers.h"
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -36,6 +38,7 @@ class PlayerComputer : public Player
             "was asked to play a card."
         );
 
+        ui::sleep(config::ai_sleep_milliseconds);
         update_hand_indices(state);
 
         if (m_hand_indices.playable.size() > 0)

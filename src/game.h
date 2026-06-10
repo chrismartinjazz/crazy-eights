@@ -10,6 +10,7 @@ class Game
   private:
     State m_state {};
     std::vector<std::unique_ptr<Player>> m_players {};
+    std::size_t m_current_player_index { 0 };
 
   public:
     Game();
@@ -23,7 +24,7 @@ class Game
     void reset_round();
     void reset_game();
     bool round_is_over() const;
-    void display_turn_info(const Player& player) const;
+    void display_turn_info() const;
     void handle_discarded_card(const Card& card, Player& player);
     bool ask_keep_playing() const;
 };

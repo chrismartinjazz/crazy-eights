@@ -9,6 +9,8 @@
 #include "ui_helpers.h"
 #include <algorithm> // for std::rotate, std::any_of
 #include <memory>
+#include <sstream>
+#include <string>
 #include <vector>
 
 Game::Game()
@@ -16,9 +18,10 @@ Game::Game()
                 .current_suit = {},
                 .deck = { card_values::ranks, card_values::suits },
                 .discards = {} }
+    , m_current_player_index { 0 }
 {
-    m_players.emplace_back(std::make_unique<PlayerHuman>("P1"));
-    m_players.emplace_back(std::make_unique<PlayerComputer>("P2"));
+    m_players.emplace_back(std::make_unique<PlayerComputer>("AI"));
+    m_players.emplace_back(std::make_unique<PlayerHuman>("Human"));
 }
 
 void Game::game_loop()
@@ -88,9 +91,9 @@ void Game::play_round()
 {
     while (!round_is_over())
     {
-        Player& current_player { *m_players[0] };
+        Player& current_player { *m_players[m_current_player_index] };
         current_player.sort_hand();
-        display_turn_info(current_player);
+        display_turn_info();
 
         std::optional<Card> discarded_card {
             current_player.play_card_or_draw(m_state)
@@ -100,7 +103,8 @@ void Game::play_round()
             handle_discarded_card(*discarded_card, current_player);
             m_state.discards.emplace_back(*discarded_card);
         }
-        std::rotate(m_players.begin(), m_players.begin() + 1, m_players.end());
+        m_current_player_index =
+            (m_current_player_index + 1) % m_players.size();
     }
 }
 
@@ -158,18 +162,132 @@ bool Game::round_is_over() const
     return false;
 }
 
-void Game::display_turn_info(const Player& player) const
+void Game::display_turn_info() const
 {
     ui::clear_terminal();
     std::cout << "~~ CRAZY 8S!!! ~~";
     std::cout << "** Target:" << config::winning_score << " **";
     std::cout << '\n';
 
-    std::cout << "\n\nTop card: " << m_state.discards.back() << " ("
-              << card_values::suit_glyph(m_state.current_suit) << ")\n\n";
-    std::cout << player.name() << ": ";
-    player.display_hand();
-    std::cout << "\n\n";
+    // For each computer player (human player is last in vector)
+    // Display their name, score, and the backs of their cards.
+    for (std::size_t i { 0 }; i < m_players.size() - 1; ++i)
+    {
+        std::stringstream line1 {};
+        if (i == m_current_player_index)
+            line1 << '*' << m_players[i]->name() << '*'
+                  << std::string(
+                         config::player_indent - m_players[i]->name().length() -
+                             2,
+                         ' '
+                     );
+        else
+            line1 << m_players[i]->name()
+                  << std::string(
+                         config::player_indent - m_players[i]->name().length(),
+                         ' '
+                     );
+
+        line1 << "┌──┐";
+        for (int j { 0 }; j < m_players[i]->cards_remaining(); ++j)
+            line1 << "─┐";
+        line1 << '\n';
+
+        std::stringstream line2 {};
+        line2 << m_players[i]->score()
+              << std::string(
+                     static_cast<std::size_t>(
+                         config::player_indent -
+                         ui::count_digits(m_players[i]->score())
+                     ),
+                     ' '
+                 );
+        line2 << "│%%│";
+        for (int j { 0 }; j < m_players[i]->cards_remaining(); ++j)
+            line2 << "%│";
+        line2 << '\n';
+
+        std::stringstream line3 {};
+        line3 << std::string(config::player_indent, ' ');
+        line3 << "└──┘";
+        for (int j { 0 }; j < m_players[i]->cards_remaining(); ++j)
+            line3 << "─┘";
+        line3 << '\n';
+
+        std::cout << line1.str() << line2.str() << line3.str();
+    }
+    std::cout << '\n';
+
+    // Display the top card of the discard pile, and a representation of the
+    // deck. Also display the current suit, if the discard pile has a wild card.
+    std::stringstream line1 {};
+    line1 << std::string(config::player_indent, ' ') << "┌────┐";
+    for (std::size_t i { 0 };
+         i < m_state.discards.size() / config::deck_cards_per_line;
+         ++i)
+        line1 << "┐";
+    line1 << " ┌────┐";
+    for (int i { 0 };
+         i < m_state.deck.cards_remaining() / config::deck_cards_per_line;
+         ++i)
+        line1 << "┐";
+    line1 << '\n';
+
+    std::stringstream line2 {};
+    if (m_state.discards.back().is_wild())
+        line2 << std::string(config::player_indent - 4, ' ') << '*'
+              << card_values::suit_glyph(m_state.current_suit) << "* ";
+    else
+        line2 << std::string(config::player_indent, ' ');
+    line2 << "│ " << m_state.discards.back() << " │";
+    for (std::size_t i { 0 };
+         i < m_state.discards.size() / config::deck_cards_per_line;
+         ++i)
+        line2 << "│";
+    line2 << " │ %  │";
+    for (int i { 0 };
+         i < m_state.deck.cards_remaining() / config::deck_cards_per_line;
+         ++i)
+        line2 << "│";
+    line2 << '\n';
+
+    std::stringstream line3 {};
+    line3 << std::string(config::player_indent, ' ') << "│    │";
+    for (std::size_t i { 0 };
+         i < m_state.discards.size() / config::deck_cards_per_line;
+         ++i)
+        line3 << "│";
+    line3 << " │  % │";
+    for (int i { 0 };
+         i < m_state.deck.cards_remaining() / config::deck_cards_per_line;
+         ++i)
+        line3 << "│";
+    line3 << '\n';
+
+    std::stringstream line4 {};
+    line4 << std::string(config::player_indent, ' ') << "└────┘";
+    for (std::size_t i { 0 };
+         i < m_state.discards.size() / config::deck_cards_per_line;
+         ++i)
+        line4 << "┘";
+    line4 << " └────┘";
+    for (int i { 0 };
+         i < m_state.deck.cards_remaining() / config::deck_cards_per_line;
+         ++i)
+        line4 << "┘";
+    line4 << '\n';
+
+    std::cout << line1.str() << line2.str() << line3.str() << line4.str();
+
+    if (m_current_player_index == m_players.size() - 1)
+        std::cout << '*' << m_players.back()->name() << "*\n";
+    else
+        std::cout << '*' << m_players.back()->name() << "*\n";
+
+    std::cout << m_players.back()->score() << '\n';
+
+    m_players.back()->display_hand();
+    std::cout << '\n';
 }
 
 void Game::handle_discarded_card(const Card& card, Player& player)

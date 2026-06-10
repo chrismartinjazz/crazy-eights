@@ -1,7 +1,11 @@
 #include "hand.h"
 #include "card_values.h"
+#include "ui_helpers.h"
 #include <algorithm>
+#include <cmath>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <vector>
 
 void Hand::add(std::vector<Card> cards)
@@ -86,8 +90,40 @@ void Hand::sort_by_suit_and_rank()
 
 std::ostream& operator<<(std::ostream& out, const Hand& hand)
 {
-    out << "[ ";
+    std::stringstream line1 {};
+    line1 << "┌";
+    for (std::size_t i { 0 }; i < hand.m_cards.size(); ++i)
+        line1 << "────┐";
+    line1 << '\n';
+
+    std::stringstream line2 {};
+    line2 << "│";
     for (auto& card : hand.m_cards)
-        out << card << " ] ";
+        line2 << ' ' << card << " │";
+    line2 << '\n';
+
+    std::stringstream line3 {};
+    line3 << "│";
+    for (std::size_t i { 0 }; i < hand.m_cards.size(); ++i)
+        line3 << "    │";
+    line3 << '\n';
+
+    std::stringstream line4 {};
+    line4 << "└";
+    for (std::size_t i { 0 }; i < hand.m_cards.size(); ++i)
+        line4 << "────┘";
+    line4 << '\n';
+
+    std::stringstream line5 {};
+    line5 << "   ";
+    for (int i { 0 }; i < static_cast<int>(hand.m_cards.size()); ++i)
+        line5 << i + 1
+              << std::string(
+                     static_cast<std::size_t>(5 - ui::count_digits(i + 1)), ' '
+                 );
+    line5 << '\n';
+
+    out << line1.str() << line2.str() << line3.str() << line4.str()
+        << line5.str();
     return out;
 }
