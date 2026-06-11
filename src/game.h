@@ -3,6 +3,7 @@
 
 #include "player.h"
 #include <memory>
+#include <string>
 #include <vector>
 
 class Game
@@ -27,6 +28,10 @@ class Game
     void display_turn_info() const;
     void handle_discarded_card(const Card& card, Player& player);
     bool ask_keep_playing() const;
+    int ask_number_of_players() const;
+    std::string ask_player_name() const;
+    std::vector<std::string> random_names(int count) const;
+    void initialize_players();
 };
 
 #endif

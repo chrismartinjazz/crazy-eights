@@ -4,13 +4,16 @@
 #include "player.h"
 #include "player_computer.cpp"
 #include "player_human.h"
+#include "random_mt.h"
 #include "scoring.h"
 #include "state.h"
 #include "ui_helpers.h"
 #include <algorithm> // for std::rotate, std::any_of
+#include <cassert>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 Game::Game()
@@ -20,8 +23,7 @@ Game::Game()
                 .discards = {} }
     , m_current_player_index { 0 }
 {
-    m_players.emplace_back(std::make_unique<PlayerComputer>("AI"));
-    m_players.emplace_back(std::make_unique<PlayerHuman>("Human"));
+    initialize_players();
 }
 
 void Game::game_loop()
@@ -187,7 +189,6 @@ void Game::display_turn_info() const
                          config::player_indent - m_players[i]->name().length(),
                          ' '
                      );
-
         line1 << "┌──┐";
         for (int j { 0 }; j < m_players[i]->cards_remaining(); ++j)
             line1 << "─┐";
@@ -314,4 +315,82 @@ bool Game::ask_keep_playing() const
         }
         }
     }
+}
+
+int Game::ask_number_of_players() const
+{
+    while (true)
+    {
+        std::string input { ui::ask_input("How many players? (2 - 5) >> ") };
+        std::stringstream ss { input };
+        int choice {};
+        if (ss >> choice)
+        {
+            if (choice >= 2 || choice <= 5)
+                return choice;
+
+            std::cout << "Type a number between 2 and 5\n";
+            continue;
+        }
+
+        std::cout << "Type a number\n";
+    }
+}
+
+std::string Game::ask_player_name() const
+{
+    while (true)
+    {
+        std::string name { ui::ask_input("What is your name? >> ") };
+        if (name.length() > config::max_name_length)
+        {
+            std::cout << "That name is too long - try again";
+            continue;
+        }
+        return name;
+    }
+}
+
+std::vector<std::string> Game::random_names(int count) const
+{
+    assert(count <= 16 && "Game::random_names() maximum count of names is 16");
+
+    std::vector<std::string> names { "Luca",   "Noah",   "Jack",   "James",
+                                     "Mia",    "Olivia", "Sophie", "Michael",
+                                     "John",   "David",  "Lisa",   "Mary",
+                                     "Ashley", "Paul",   "Brian",  "Karen" };
+    std::vector<std::string> output {};
+    for (int i { 0 }; i < count; ++i)
+    {
+        int name_index {
+            random_mt::get(0, static_cast<int>(names.size() - 1))
+        };
+        std::size_t name_index_size_t { static_cast<std::size_t>(name_index) };
+        output.push_back(std::move(names[name_index_size_t]));
+        names.erase(names.begin() + name_index);
+    }
+    return output;
+}
+
+void Game::initialize_players()
+{
+    std::string player_name { ask_player_name() };
+    int number_of_players { ask_number_of_players() };
+    std::vector<std::string> computer_player_names {
+        random_names(number_of_players - 1)
+    };
+
+    for (std::size_t i { 0 };
+         i < static_cast<std::size_t>(number_of_players - 1);
+         ++i)
+    {
+        m_players.emplace_back(
+            std::make_unique<PlayerComputer>(
+                std::move(computer_player_names[i])
+            )
+        );
+    }
+
+    // The human player must be the last position in the vector.
+    m_players.emplace_back(std::make_unique<PlayerHuman>(player_name));
 }

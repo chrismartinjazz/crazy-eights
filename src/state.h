@@ -7,8 +7,6 @@
 #include "rules.h"
 #include <vector>
 
-class Player;
-
 struct State
 {
     const Rules rules {};

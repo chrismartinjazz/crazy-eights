@@ -9,6 +9,7 @@ namespace config
     constexpr int player_indent { 15 };
     constexpr int deck_cards_per_line { 6 };
     constexpr int ai_sleep_milliseconds { 700 };
+    constexpr int max_name_length { 30 };
 } // namespace config
 
 #endif
