@@ -144,16 +144,15 @@ For 2 players
   - Should score difference between each losers hand and the winning score, not the total score,  when the deck runs out
 - [x] Improve display - clear screen each action, improve game state information
 - [] Fix bug where seg fault occurs when draw pile is empty
-- [] Add support for different numbers of players
-  - 2-7 players
+- [x] Add support for different numbers of players
+  - 2-5 players
   - One human player, others are AI players with randomised names
     - deck
       - 2-5 players, 52 card deck
-      - 6-7 players, 104 card deck
     - hand size
       - 2 players, 7 cards
-      - 3-7 players, 5 cards
-- [] Add colored text for hearts and diamonds
+      - 3-5 players, 5 cards
+- [x] Add colored text for hearts and diamonds
 - [] Add special card functions
   - [] Queens skip turn
   - [] Aces reverse direction

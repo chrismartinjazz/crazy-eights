@@ -100,10 +100,10 @@ namespace card_values
     inline constexpr std::
         array<std::string_view, static_cast<size_t>(Suit::maxSuit)>
             suit_glyph_lookup {
-                "♣", // Club
-                "♦", // Diamond
-                "♥", // Heart
-                "♠"  // Spade
+                "♣",                // Club
+                "\033[31m♦\033[0m", // Diamond
+                "\033[31m♥\033[0m", // Heart
+                "♠"                 // Spade
             };
 
     static_assert(

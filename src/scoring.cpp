@@ -107,7 +107,8 @@ void scoring::display_scores(
     const std::vector<std::unique_ptr<Player>>& players
 )
 {
-    std::cout << "-- Current scores (" << config::winning_score
+    std::cout << "-- Current scores ("
+              << config::winning_score_per_player * players.size()
               << " to win) --\n";
     for (auto& player : players)
         std::cout << player->name() << ": " << player->score() << '\n';

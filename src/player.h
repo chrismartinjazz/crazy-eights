@@ -14,7 +14,7 @@ struct State;
 class Player
 {
   protected:
-    std::string_view m_name {};
+    std::string m_name {};
     Hand m_hand {};
     int m_score {};
 

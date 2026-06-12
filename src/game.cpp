@@ -2,7 +2,7 @@
 #include "card_values.h"
 #include "config.h"
 #include "player.h"
-#include "player_computer.cpp"
+#include "player_computer.h"
 #include "player_human.h"
 #include "random_mt.h"
 #include "scoring.h"
@@ -23,6 +23,7 @@ Game::Game()
                 .discards = {} }
     , m_current_player_index { 0 }
 {
+    ui::clear_terminal();
     initialize_players();
 }
 
@@ -60,16 +61,21 @@ bool Game::a_player_has_won() const
     return std::any_of(
         m_players.begin(),
         m_players.end(),
-        [](const std::unique_ptr<Player>& player)
-        { return player->score() >= config::winning_score; }
+        [&](const std::unique_ptr<Player>& player)
+        {
+            return player->score() >= config::winning_score_per_player *
+                                          static_cast<int>(m_players.size());
+        }
     );
 }
 
 void Game::deal()
 {
+    int hand_size { m_players.size() > 2 ? config::hand_size
+                                         : config::hand_size_two_players };
     for (std::unique_ptr<Player>& player : m_players)
     {
-        std::vector<Card> hand { m_state.deck.deal(config::hand_size) };
+        std::vector<Card> hand { m_state.deck.deal(hand_size) };
         player->add_to_hand(hand);
     }
 
@@ -167,8 +173,9 @@ bool Game::round_is_over() const
 void Game::display_turn_info() const
 {
     ui::clear_terminal();
-    std::cout << "~~ CRAZY 8S!!! ~~";
-    std::cout << "** Target:" << config::winning_score << " **";
+    std::cout << "~~ CRAZY 8S!!! ~~\n";
+    std::cout << "** Target:"
+              << config::winning_score_per_player * m_players.size() << " **";
     std::cout << '\n';
 
     // For each computer player (human player is last in vector)
@@ -190,7 +197,7 @@ void Game::display_turn_info() const
                          ' '
                      );
         line1 << "┌──┐";
-        for (int j { 0 }; j < m_players[i]->cards_remaining(); ++j)
+        for (int j { 0 }; j < m_players[i]->cards_remaining() - 1; ++j)
             line1 << "─┐";
         line1 << '\n';
 
@@ -204,14 +211,14 @@ void Game::display_turn_info() const
                      ' '
                  );
         line2 << "│%%│";
-        for (int j { 0 }; j < m_players[i]->cards_remaining(); ++j)
+        for (int j { 0 }; j < m_players[i]->cards_remaining() - 1; ++j)
             line2 << "%│";
         line2 << '\n';
 
         std::stringstream line3 {};
         line3 << std::string(config::player_indent, ' ');
         line3 << "└──┘";
-        for (int j { 0 }; j < m_players[i]->cards_remaining(); ++j)
+        for (int j { 0 }; j < m_players[i]->cards_remaining() - 1; ++j)
             line3 << "─┘";
         line3 << '\n';
 
