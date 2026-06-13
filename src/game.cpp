@@ -11,6 +11,7 @@
 #include "ui_helpers.h"
 #include <algorithm> // for std::rotate, std::any_of
 #include <cassert>
+#include <cmath> // for std::abs
 #include <memory>
 #include <sstream>
 #include <string>
@@ -29,7 +30,9 @@ Game::Game(std::string_view player_name, int num_players)
                 .current_suit = {},
                 .deck = { card_values::ranks, card_values::suits },
                 .discards = {},
-                .current_player_index { 0 } }
+                .current_player_index { 0 },
+                .direction { 1 },
+                .next_player_draws_two { false } }
     , m_players { create_players(player_name, num_players) }
     , m_display { m_state, m_players }
 {
@@ -106,20 +109,22 @@ void Game::play_round()
 {
     while (!round_is_over())
     {
-        Player& current_player { *m_players[m_state.current_player_index] };
-        current_player.sort_hand();
+        m_players[m_state.current_player_index]->sort_hand();
         m_display.render();
 
+        if (m_state.next_player_draws_two)
+        {
+            handle_draw_two();
+            increment_turn();
+            continue;
+        }
+
         std::optional<Card> discarded_card {
-            current_player.play_card_or_draw(m_state)
+            m_players[m_state.current_player_index]->play_card_or_draw(m_state)
         };
         if (discarded_card)
-        {
-            handle_discarded_card(*discarded_card, current_player);
-            m_state.discards.emplace_back(*discarded_card);
-        }
-        m_state.current_player_index =
-            (m_state.current_player_index + 1) % m_players.size();
+            handle_discarded_card(*discarded_card);
+        increment_turn();
     }
 }
 
@@ -138,8 +143,7 @@ void Game::reset_round()
 {
     for (std::unique_ptr<Player>& player : m_players)
         player->reset_hand();
-    m_state.discards.clear();
-    m_state.deck.reset();
+    reset_state();
 }
 
 void Game::reset_game()
@@ -149,8 +153,15 @@ void Game::reset_game()
         player->reset_hand();
         player->reset_score();
     }
+    reset_state();
+}
+
+void Game::reset_state()
+{
     m_state.discards.clear();
     m_state.deck.reset();
+    m_state.direction = 1;
+    m_state.next_player_draws_two = false;
 }
 
 // The game is over when any player has played all their cards, or,
@@ -177,12 +188,41 @@ bool Game::round_is_over() const
     return false;
 }
 
-void Game::handle_discarded_card(const Card& card, Player& player)
+void Game::handle_draw_two()
+{
+    m_players[m_state.current_player_index]->draw_two(m_state);
+    m_state.next_player_draws_two = false;
+}
+
+void Game::handle_discarded_card(const Card& card)
 {
     if (card.is_wild())
-        m_state.current_suit = player.ask_choose_suit();
+        m_state.current_suit =
+            m_players[m_state.current_player_index]->ask_choose_suit();
     else
         m_state.current_suit = card.suit();
+
+    if (card.is_reverse())
+        m_state.direction *= -1;
+
+    if (card.is_draw_two())
+        m_state.next_player_draws_two = true;
+
+    m_state.discards.emplace_back(card);
+}
+
+void Game::increment_turn()
+{
+    int increment { m_state.discards.back().is_skip() ? 2 : 1 };
+    increment *= m_state.direction;
+    std::size_t next_index {
+        static_cast<std::size_t>(
+            static_cast<int>(m_state.current_player_index) +
+            static_cast<int>(m_players.size()) + increment
+        ) %
+        m_players.size()
+    };
+    m_state.current_player_index = next_index;
 }
 
 bool Game::ask_keep_playing() const

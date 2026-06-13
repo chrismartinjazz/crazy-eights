@@ -9,7 +9,10 @@ Card::Card(Rank rank, Suit suit)
     : m_rank(rank)
     , m_suit(suit)
     , m_effect {
-        rank == Rank::Eight // wild
+        rank == Rank::Eight, // wild
+        rank == Rank::Queen, // skip
+        rank == Rank::Ace,   // reverse
+        rank == Rank::Two    // draw_two
     }
 {
 }
@@ -32,6 +35,21 @@ int Card::points() const
 bool Card::is_wild() const
 {
     return m_effect.wild;
+}
+
+bool Card::is_skip() const
+{
+    return m_effect.skip;
+}
+
+bool Card::is_reverse() const
+{
+    return m_effect.reverse;
+}
+
+bool Card::is_draw_two() const
+{
+    return m_effect.draw_two;
 }
 
 std::string Card::display() const

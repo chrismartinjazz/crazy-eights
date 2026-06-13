@@ -65,6 +65,26 @@ void PlayerHuman::sort_hand()
     m_hand.sort_by_suit_and_rank();
 }
 
+void PlayerHuman::draw_two(State& state)
+{
+    std::cout << "Draw two...\n";
+    for (int i { 0 }; i < 2; ++i)
+    {
+        if (state.deck.cards_remaining() > 0)
+        {
+            Card drawn_card { state.deck.draw_one() };
+            std::cout << "Drew " << drawn_card << '\n';
+            m_hand.add(state.deck.draw_one());
+        }
+        else
+        {
+            std::cout << "Draw pile is empty.\n";
+            break;
+        }
+    }
+    ui::ask_press_enter("Press enter to end your turn...");
+}
+
 // private:
 
 std::optional<Card> PlayerHuman::play_or_voluntary_draw(

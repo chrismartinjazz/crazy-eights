@@ -6,6 +6,9 @@
 struct CardEffect
 {
     bool wild { false };
+    bool skip { false };
+    bool reverse { false };
+    bool draw_two { false };
 };
 
 class Card
@@ -21,6 +24,9 @@ class Card
     card_values::Suit suit() const;
     int points() const;
     bool is_wild() const;
+    bool is_skip() const;
+    bool is_reverse() const;
+    bool is_draw_two() const;
     std::string display() const;
     friend std::ostream& operator<<(std::ostream& out, const Card& card);
 };

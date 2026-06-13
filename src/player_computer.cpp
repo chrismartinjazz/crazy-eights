@@ -59,6 +59,14 @@ void PlayerComputer::sort_hand()
     m_hand.sort_by_points();
 }
 
+void PlayerComputer::draw_two(State& state)
+{
+    for (int i { 0 }; i < 2; ++i)
+        if (state.deck.cards_remaining() > 0)
+            m_hand.add(state.deck.draw_one());
+    ui::sleep(config::ai_sleep_milliseconds);
+}
+
 Card PlayerComputer::select_card(State& state)
 {
     if (m_hand_indices.suits_map.contains(state.current_suit))

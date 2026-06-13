@@ -32,10 +32,13 @@ void Display::render()
 
 std::string Display::render_header() const
 {
+    int target { config::winning_score_per_player *
+                 static_cast<int>(m_players.size()) };
+
     std::stringstream ss {};
-    ss << "~~ CRAZY 8S!!! ~~\n"
-       << "** Target:" << config::winning_score_per_player * m_players.size()
-       << " **\n";
+    ss << "                ~~ CrAzY 8s!!! ~~\n";
+    ss << "                ** Target: " << target << " **\n\n";
+    ss << "8 - Wild   A - Reverse   Q - Skip   2 - Draw two\n\n";
     return ss.str();
 }
 

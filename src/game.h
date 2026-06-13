@@ -26,8 +26,11 @@ class Game
     void update_scores();
     void reset_round();
     void reset_game();
+    void reset_state();
     bool round_is_over() const;
-    void handle_discarded_card(const Card& card, Player& player);
+    void handle_draw_two();
+    void handle_discarded_card(const Card& card);
+    void increment_turn();
     bool ask_keep_playing() const;
     std::vector<std::string> random_names(int count) const;
     std::vector<std::unique_ptr<Player>>
