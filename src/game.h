@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "display.h"
 #include "player.h"
 #include <memory>
 #include <string>
@@ -11,13 +12,14 @@ class Game
   private:
     State m_state {};
     std::vector<std::unique_ptr<Player>> m_players {};
-    std::size_t m_current_player_index { 0 };
+    Display m_display;
 
   public:
-    Game();
+    static Game create();
     void game_loop();
 
   private:
+    Game(std::string_view player_name, int num_players);
     bool a_player_has_won() const;
     void deal();
     void play_round();
@@ -25,13 +27,11 @@ class Game
     void reset_round();
     void reset_game();
     bool round_is_over() const;
-    void display_turn_info() const;
     void handle_discarded_card(const Card& card, Player& player);
     bool ask_keep_playing() const;
-    int ask_number_of_players() const;
-    std::string ask_player_name() const;
     std::vector<std::string> random_names(int count) const;
-    void initialize_players();
+    std::vector<std::unique_ptr<Player>>
+    create_players(std::string_view player_name, int number_of_players);
 };
 
 #endif

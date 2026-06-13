@@ -35,6 +35,10 @@ void Player::reset_score()
     m_score = 0;
 }
 
+std::string Player::display() const
+{
+    return m_hand.display();
+}
 void Player::display_hand() const
 {
     std::cout << m_hand;

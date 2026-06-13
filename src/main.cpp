@@ -2,7 +2,7 @@
 
 int main()
 {
-    Game game {};
+    Game game { Game::create() };
     game.game_loop();
     return 0;
 }

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <vector>
 
 void Hand::add(std::vector<Card> cards)
@@ -88,42 +89,46 @@ void Hand::sort_by_suit_and_rank()
     );
 }
 
+std::string Hand::display() const
+{
+    std::stringstream ss {};
+    ss << build_line(m_cards.size(), "┌", "────┐") << '\n';
+
+    // Render the card values.
+    ss << "│";
+    for (auto& card : m_cards)
+        ss << ' ' << card << " │";
+    ss << '\n';
+
+    ss << build_line(m_cards.size(), "│", "    │") << '\n';
+    ss << build_line(m_cards.size(), "└", "────┘") << '\n';
+
+    // Render the selection numbers for the cards, starting at 1.
+    const std::size_t card_width { 5 };
+    ss << "   ";
+    for (int i { 1 }; i < static_cast<int>(m_cards.size() + 1); ++i)
+    {
+        std::size_t number_width { ui::count_digits(i) };
+        ss << i << std::string((card_width - number_width), ' ');
+    }
+    ss << '\n';
+
+    return ss.str();
+}
+
+std::string Hand::build_line(
+    std::size_t count, std::string_view first, std::string_view repeater
+) const
+{
+    std::stringstream ss {};
+    ss << first;
+    for (std::size_t i { 0 }; i < count; ++i)
+        ss << repeater;
+    return ss.str();
+}
+
 std::ostream& operator<<(std::ostream& out, const Hand& hand)
 {
-    std::stringstream line1 {};
-    line1 << "┌";
-    for (std::size_t i { 0 }; i < hand.m_cards.size(); ++i)
-        line1 << "────┐";
-    line1 << '\n';
-
-    std::stringstream line2 {};
-    line2 << "│";
-    for (auto& card : hand.m_cards)
-        line2 << ' ' << card << " │";
-    line2 << '\n';
-
-    std::stringstream line3 {};
-    line3 << "│";
-    for (std::size_t i { 0 }; i < hand.m_cards.size(); ++i)
-        line3 << "    │";
-    line3 << '\n';
-
-    std::stringstream line4 {};
-    line4 << "└";
-    for (std::size_t i { 0 }; i < hand.m_cards.size(); ++i)
-        line4 << "────┘";
-    line4 << '\n';
-
-    std::stringstream line5 {};
-    line5 << "   ";
-    for (int i { 0 }; i < static_cast<int>(hand.m_cards.size()); ++i)
-        line5 << i + 1
-              << std::string(
-                     static_cast<std::size_t>(5 - ui::count_digits(i + 1)), ' '
-                 );
-    line5 << '\n';
-
-    out << line1.str() << line2.str() << line3.str() << line4.str()
-        << line5.str();
+    out << hand.display();
     return out;
 }

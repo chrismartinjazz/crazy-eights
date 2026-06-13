@@ -34,6 +34,14 @@ bool Card::is_wild() const
     return m_effect.wild;
 }
 
+std::string Card::display() const
+{
+    std::string out {};
+    out += rank_letter(m_rank);
+    out += suit_glyph(m_suit);
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, const Card& card)
 {
     out << rank_letter(card.m_rank) << suit_glyph(card.m_suit);

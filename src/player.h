@@ -30,6 +30,7 @@ class Player
     void add_to_score(const int points);
     void reset_score();
 
+    std::string display() const;
     void display_hand() const;
     void reset_hand();
     void add_to_hand(std::vector<Card>& cards);

@@ -21,6 +21,10 @@ class Hand
     Card play(int index);
     void sort_by_points();
     void sort_by_suit_and_rank();
+    std::string display() const;
+    std::string build_line(
+        std::size_t count, std::string_view first, std::string_view repeater
+    ) const;
     friend std::ostream& operator<<(std::ostream& out, const Hand& hand);
 };
 
