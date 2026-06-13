@@ -143,7 +143,6 @@ For 2 players
 - [x] Fix scoring mistake
   - Should score difference between each losers hand and the winning score, not the total score,  when the deck runs out
 - [x] Improve display - clear screen each action, improve game state information
-- [] Fix bug where seg fault occurs when draw pile is empty
 - [x] Add support for different numbers of players
   - 2-5 players
   - One human player, others are AI players with randomised names
@@ -153,10 +152,11 @@ For 2 players
       - 2 players, 7 cards
       - 3-5 players, 5 cards
 - [x] Add colored text for hearts and diamonds
-- [] Add special card functions
-  - [] Queens skip turn
-  - [] Aces reverse direction
-  - [] Two is draw two (unless game is over)
+- [x] Add special card functions
+  - [x] Queens skip turn
+  - [x] Aces reverse direction
+  - [x] Two is draw two (unless game is over)
+- [] Fix bug where seg fault occurs late in game, seemingly randomly
 
   ## Display
 
